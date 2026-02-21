@@ -49,6 +49,6 @@ USER container
 ENV USER=container HOME=/home/container
 WORKDIR /home/container
 
-# Clear the inherited node entrypoint so Pterodactyl Wings can pass its startup command directly
-ENTRYPOINT ["/bin/bash", "-c"]
-CMD ["echo 'No startup command set'"]
+# Clear the inherited node entrypoint — Wings supplies the full startup command as CMD
+ENTRYPOINT []
+CMD ["/bin/bash"]

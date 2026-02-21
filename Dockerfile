@@ -40,8 +40,7 @@ RUN pip install --no-cache-dir \
     --break-system-packages
 
 # HuggingFace cache dir — Pterodactyl will volume-mount /data
-ENV TRANSFORMERS_CACHE=/data/hf_cache
-ENV HF_HOME=/data/hf_cache
+ENV HF_HOME=/home/container/.hf_cache
 
 # Pterodactyl requires this user/home
 RUN useradd -m -d /home/container -s /bin/bash container

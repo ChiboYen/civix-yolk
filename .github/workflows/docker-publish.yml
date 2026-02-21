@@ -29,5 +29,5 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/yourname/toxiscan-yolk:latest
-            ghcr.io/yourname/toxiscan-yolk:1.0.0
+            ghcr.io/chiboyen/civix-yolk:latest
+            ghcr.io/chiboyen/civix-yolk:1.0.0

@@ -1,0 +1,52 @@
+{
+  "_comment": "DO NOT EDIT: FILE AUTOMATICALLY GENERATED AND SAVED BY PTERODACTYL PANEL",
+  "meta": {
+    "version": "PTDL_v2",
+    "update_url": null
+  },
+  "exported_at": "2024-01-01T00:00:00+00:00",
+  "name": "Civix",
+  "author": "nostalgiacraft.management@gmail.com",
+  "description": "Minecraft chat toxicity analyzer — Node.js 20 + Python 3.11 + HuggingFace ML pipeline.",
+  "features": null,
+  "docker_images": {
+    "Civix Yolk": "ghcr.io/chiboyen/civix-yolk:latest"
+  },
+  "file_denylist": [],
+  "startup": "OMP_NUM_THREADS=2 TOKENIZERS_PARALLELISM=false python3 sidecar/main.py & node scripts/wait-for-sidecar.js && node src/server/index.js",
+  "config": {
+    "files": "{}",
+    "startup": "{\"done\": \"Civix server listening on\"}",
+    "logs": "{}",
+    "stop": "^C"
+  },
+  "scripts": {
+    "installation": {
+      "script": "#!/bin/bash\napt-get update\napt-get install -y git curl\n\ncd /mnt/server\n\nif [ -d .git ]; then\n  git pull\nelse\n  git clone ${GITHUB_REPO} .\nfi\n\n# Install ALL deps (including devDeps) so Vite is available for the frontend build\nnpm ci\nnpm run build\n# Remove devDeps after build — runtime only needs production deps\nnpm prune --omit=dev\n\necho \"[Civix Install] Pre-caching HuggingFace models...\"\npython3 -c \"\nimport os\nfrom transformers import pipeline\ncache = os.environ.get('TRANSFORMERS_CACHE', '/data/hf_cache')\nos.makedirs(cache, exist_ok=True)\npipeline('text-classification', model='unitary/toxic-bert', cache_dir=cache)\npipeline('text-classification', model='facebook/roberta-hate-speech-dynabench-r4-target', cache_dir=cache)\npipeline('text-classification', model='s-nlp/roberta_toxicity_classifier', cache_dir=cache)\nprint('Models cached successfully')\n\"\n\necho \"[Civix Install] Done\"",
+      "container": "ghcr.io/chiboyen/civix-yolk:latest",
+      "entrypoint": "bash"
+    }
+  },
+  "variables": [
+    {
+      "name": "HuggingFace Cache Dir",
+      "description": "Where to store downloaded model weights — must point to a persistent volume so models survive reinstalls",
+      "env_variable": "TRANSFORMERS_CACHE",
+      "default_value": "/data/hf_cache",
+      "user_viewable": true,
+      "user_editable": false,
+      "rules": "required|string",
+      "field_type": "text"
+    },
+    {
+      "name": "GitHub Repo",
+      "description": "Your Civix app repo to clone on install",
+      "env_variable": "GITHUB_REPO",
+      "default_value": "https://github.com/chiboyen/civix",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string",
+      "field_type": "text"
+    }
+  ]
+}

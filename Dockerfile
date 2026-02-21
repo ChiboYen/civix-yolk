@@ -1,7 +1,7 @@
 FROM node:20-bookworm-slim
 
-LABEL org.opencontainers.image.source=https://github.com/yourname/toxiscan-yolk
-LABEL org.opencontainers.image.description="ToxiScan runtime: Node.js 20 + Python 3.11 + HuggingFace"
+LABEL org.opencontainers.image.source=https://github.com/chiboyen/civix-yolk
+LABEL org.opencontainers.image.description="Civix runtime: Node.js 20 + Python 3.11 + HuggingFace"
 
 RUN apt-get update && apt-get install -y \
     python3.11 \
@@ -48,3 +48,7 @@ RUN useradd -m -d /home/container -s /bin/bash container
 USER container
 ENV USER=container HOME=/home/container
 WORKDIR /home/container
+
+# Clear the inherited node entrypoint so Pterodactyl Wings can pass its startup command directly
+ENTRYPOINT ["/bin/bash", "-c"]
+CMD ["echo 'No startup command set'"]

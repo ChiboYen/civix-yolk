@@ -16,7 +16,9 @@ RUN apt-get update && apt-get install -y \
 
 # Make python3 point to 3.11
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
-RUN update-alternatives --install /usr/bin/python python python3.11 1
+
+# Make python point to 3.11
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
 
 # Upgrade pip
 RUN python3 -m pip install --upgrade pip --break-system-packages

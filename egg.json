@@ -13,7 +13,7 @@
     "Civix Yolk": "ghcr.io/chiboyen/civix-yolk:latest"
   },
   "file_denylist": [],
-  "startup": "export HF_HOME={{HF_HOME}} && OMP_NUM_THREADS=2 TOKENIZERS_PARALLELISM=false python3 sidecar/main.py & node scripts/wait-for-sidecar.js && node src/server/index.js",
+  "startup": "npm install --omit=dev && export HF_HOME={{HF_HOME}} && OMP_NUM_THREADS=2 TOKENIZERS_PARALLELISM=false python3 sidecar/main.py & node scripts/wait-for-sidecar.js && node src/server/index.js",
   "config": {
     "files": "{}",
     "startup": "{\"done\": \"Civix server listening on\"}",
@@ -22,7 +22,7 @@
   },
   "scripts": {
     "installation": {
-      "script": "#!/bin/bash\napt-get update\napt-get install -y git curl\n\ncd /mnt/server\n\n# Build authenticated clone URL if a token is provided\nif [ -n \"${GITHUB_TOKEN}\" ]; then\n  CLONE_URL=$(echo \"${GITHUB_REPO}\" | sed \"s|https://|https://${GITHUB_TOKEN}@|\")\nelse\n  CLONE_URL=\"${GITHUB_REPO}\"\nfi\n\nif [ -d .git ]; then\n  git remote set-url origin \"$CLONE_URL\"\n  git pull\nelse\n  git clone \"$CLONE_URL\" .\nfi\n\n# Install ALL deps (including devDeps) so Vite is available for the frontend build\nnpm ci\nnpm run build\n# Remove devDeps after build — runtime only needs production deps\nnpm prune --omit=dev\n\necho \"[Civix Install] Pre-caching HuggingFace models...\"\nexport HF_HOME=\"${HF_HOME:-/home/container/.hf_cache}\"\nmkdir -p \"$HF_HOME\"\npython3 -c \"\nimport os\nfrom transformers import pipeline\ncache = os.environ.get('HF_HOME', '/home/container/.hf_cache')\nos.makedirs(cache, exist_ok=True)\npipeline('text-classification', model='unitary/toxic-bert', cache_dir=cache)\npipeline('text-classification', model='facebook/roberta-hate-speech-dynabench-r4-target', cache_dir=cache)\npipeline('text-classification', model='s-nlp/roberta_toxicity_classifier', cache_dir=cache)\nprint('Models cached successfully')\n\"\n\necho \"[Civix Install] Done\"",
+      "script": "#!/bin/bash\napt-get update\napt-get install -y git curl\n\ncd /mnt/server\n\n# Build authenticated clone URL if a token is provided\nif [ -n \"${GITHUB_TOKEN}\" ]; then\n  CLONE_URL=$(echo \"${GITHUB_REPO}\" | sed \"s|https://|https://${GITHUB_TOKEN}@|\")\nelse\n  CLONE_URL=\"${GITHUB_REPO}\"\nfi\n\nif [ -d .git ]; then\n  git remote set-url origin \"$CLONE_URL\"\n  git pull\nelse\n  git clone \"$CLONE_URL\" .\nfi\n\n# Install ALL deps (including devDeps) so Vite is available for the frontend build\nnpm install\nnpm run build\n# Remove devDeps after build — runtime only needs production deps\nnpm prune --omit=dev\n\necho \"[Civix Install] Pre-caching HuggingFace models...\"\nexport HF_HOME=\"${HF_HOME:-/home/container/.hf_cache}\"\nmkdir -p \"$HF_HOME\"\npython3 -c \"\nimport os\nfrom transformers import pipeline\ncache = os.environ.get('HF_HOME', '/home/container/.hf_cache')\nos.makedirs(cache, exist_ok=True)\npipeline('text-classification', model='unitary/toxic-bert', cache_dir=cache)\npipeline('text-classification', model='facebook/roberta-hate-speech-dynabench-r4-target', cache_dir=cache)\npipeline('text-classification', model='s-nlp/roberta_toxicity_classifier', cache_dir=cache)\nprint('Models cached successfully')\n\"\n\necho \"[Civix Install] Done\"",
       "container": "ghcr.io/chiboyen/civix-yolk:latest",
       "entrypoint": "bash"
     }

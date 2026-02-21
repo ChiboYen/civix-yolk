@@ -49,6 +49,7 @@ USER container
 ENV USER=container HOME=/home/container
 WORKDIR /home/container
 
-# Clear the inherited node entrypoint — Wings supplies the full startup command as CMD
-ENTRYPOINT []
-CMD ["/bin/bash"]
+COPY --chown=container:container entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["No startup command provided"]
